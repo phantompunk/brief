@@ -73,7 +73,27 @@ func getDates(start time.Time) *WeekYear {
 	return &WeekYear{week, year, monday, tuesday, wednesday, thursday, friday}
 }
 
+var usage = `Usage: brief [options...] command <url>
+Options:
+  --template	Path to custom template file for weekly report.
+  --date	Date used to generate weekly report. Default is current date.
+  --output 	Output directory for newly created report. Default is current directory.
+Subcommands:
+  create	Generate a weekly report
+  edit		Edit weekly report template
+  version	Print version info
+`
+
 func main() {
+	flag.Usage = func() {
+		fmt.Fprint(os.Stderr, fmt.Sprintf(usage))
+	}
+
+	flag.Parse()
+	if flag.NArg() < 1 {
+		usageAndExit("")
+	}
+
 	createCmd := flag.NewFlagSet("create", flag.ExitOnError)
 	createTempl := createCmd.String("template", "brief.tmpl", "Generate weekly report using custom template")
 	createDate := createCmd.String("date", "2012/01/24", "Generate weekly report for a given date")
@@ -115,8 +135,17 @@ func main() {
 		}
 		err = t.Execute(f, data)
 	default:
-		// TODO Improve error messaging
-		fmt.Printf("brief: '%s' is not a brief command.\n", os.Args[1])
-		fmt.Println("Expected 'create'")
+		usageAndExit(fmt.Sprintf("brief: '%s' is not a brief command.\n", os.Args[1]))
 	}
+}
+
+func usageAndExit(msg string) {
+	if msg != "" {
+		fmt.Fprintf(os.Stderr, msg)
+		fmt.Fprintf(os.Stderr, "\n")
+	}
+
+	flag.Usage()
+	fmt.Fprintf(os.Stderr, "\n")
+	os.Exit(1)
 }

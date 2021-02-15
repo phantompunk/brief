@@ -73,6 +73,11 @@ func getDates(start time.Time) *WeekYear {
 	return &WeekYear{week, year, monday, tuesday, wednesday, thursday, friday}
 }
 
+var (
+	build   = "???"
+	version = "???"
+)
+
 var usage = `Usage: brief [options...] command <url>
 Options:
   --template	Path to custom template file for weekly report.
@@ -95,6 +100,8 @@ func main() {
 	}
 
 	createCmd := flag.NewFlagSet("create", flag.ExitOnError)
+	versionCmd := flag.NewFlagSet("version", flag.ExitOnError)
+	versionShort := versionCmd.Bool("short", false, "")
 	createTempl := createCmd.String("template", "brief.tmpl", "Generate weekly report using custom template")
 	createDate := createCmd.String("date", "2012/01/24", "Generate weekly report for a given date")
 	createOut := createCmd.String("output", "", "Path to place weekly report")
@@ -134,9 +141,23 @@ func main() {
 			os.Exit(1)
 		}
 		err = t.Execute(f, data)
+	case "version":
+		versionCmd.Parse(os.Args[2:])
+		if *versionShort {
+			fmt.Printf("brief version: %s", version)
+		} else {
+			fmt.Printf("brief version: %s, build: %s", version, build)
+		}
+		os.Exit(0)
 	default:
 		usageAndExit(fmt.Sprintf("brief: '%s' is not a brief command.\n", os.Args[1]))
 	}
+}
+
+func errAndExit(msg string) {
+	fmt.Fprintf(os.Stderr, msg)
+	fmt.Fprintf(os.Stderr, "\n")
+	os.Exit(1)
 }
 
 func usageAndExit(msg string) {

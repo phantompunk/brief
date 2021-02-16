@@ -78,15 +78,34 @@ var (
 	version = "???"
 )
 
-var usage = `Usage: brief [options...] command <url>
+var usage = `Usage: brief command [options...]
 Options:
   --template	Path to custom template file for weekly report.
   --date	Date used to generate weekly report. Default is current date.
   --output 	Output directory for newly created report. Default is current directory.
-Subcommands:
+Commands:
   create	Generate a weekly report
   edit		Edit weekly report template
   version	Print version info
+`
+
+var createUsage = `Usage: brief create [options...]
+Examples:
+  # Generate a report for the week containing Feb 2, 2021
+	brief create --date 02/17/2021
+
+Options:
+  --template	Path to custom template file for weekly report.
+  --date	Date used to generate weekly report. Default is current date.
+  --output 	Output directory for newly created report. Default is current directory.
+`
+
+var versionUsage = `Print the app version and build info for the current context.
+
+Usage: brief version [options...]
+
+Options:
+  --short  If true, print just the version number. Default false.
 `
 
 func main() {
@@ -100,7 +119,13 @@ func main() {
 	}
 
 	createCmd := flag.NewFlagSet("create", flag.ExitOnError)
+	createCmd.Usage = func() {
+		fmt.Fprint(os.Stderr, fmt.Sprintf(createUsage))
+	}
 	versionCmd := flag.NewFlagSet("version", flag.ExitOnError)
+	versionCmd.Usage = func() {
+		fmt.Fprint(os.Stderr, fmt.Sprintf(versionUsage))
+	}
 	versionShort := versionCmd.Bool("short", false, "")
 	createTempl := createCmd.String("template", "brief.tmpl", "Generate weekly report using custom template")
 	createDate := createCmd.String("date", "2012/01/24", "Generate weekly report for a given date")
@@ -143,15 +168,30 @@ func main() {
 		err = t.Execute(f, data)
 	case "version":
 		versionCmd.Parse(os.Args[2:])
-		if *versionShort {
-			fmt.Printf("brief version: %s", version)
-		} else {
-			fmt.Printf("brief version: %s, build: %s", version, build)
-		}
-		os.Exit(0)
 	default:
 		usageAndExit(fmt.Sprintf("brief: '%s' is not a brief command.\n", os.Args[1]))
 	}
+
+	if versionCmd.Parsed() {
+		handleVersion(*versionShort)
+	}
+
+	if createCmd.Parsed() {
+		handleCreate()
+	}
+}
+
+func handleCreate() int {
+	return 0
+}
+
+func handleVersion(short bool) {
+	if short {
+		fmt.Printf("brief version: v%s", version)
+	} else {
+		fmt.Printf("brief version: v%s, build: %s", version, build)
+	}
+	os.Exit(0)
 }
 
 func errAndExit(msg string) {

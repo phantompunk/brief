@@ -1,0 +1,416 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/phantompunk/brief/command/command.go (0.0%)</option>
+				
+				<option value="file1">github.com/phantompunk/brief/command/editor.go (100.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package command
+
+import (
+        "flag"
+        "fmt"
+        "os"
+        "os/exec"
+        "text/template"
+        "time"
+)
+
+var createUsage = `Usage: brief create [options...]
+Examples:
+  # Generate a report for the week containing Feb 2, 2021
+        brief create --date 02/17/2021
+
+Options:
+  --template        Path to custom template file for weekly report.
+  --date        Date used to generate weekly report. Default is current date.
+  --output         Output directory for newly created report. Default is current directory.
+`
+
+var versionUsage = `Print the app version and build info for the current context.
+
+Usage: brief version [options...]
+
+Options:
+  --short  If true, print just the version number. Default false.
+`
+
+var (
+        build   = "???"
+        version = "???"
+)
+
+type Command interface {
+        Init()
+        Run()
+        Called()
+}
+
+type VersionCommand struct {
+        short bool
+        fs    *flag.FlagSet
+}
+
+func (c *VersionCommand) Init(args []string) error <span class="cov0" title="0">{
+        return c.fs.Parse(args)
+}</span>
+
+func (c *VersionCommand) Run() <span class="cov0" title="0">{
+        if c.short </span><span class="cov0" title="0">{
+                fmt.Printf("brief version: v%s", version)
+        }</span> else<span class="cov0" title="0"> {
+                fmt.Printf("brief version: v%s, build: %s", version, build)
+        }</span>
+        <span class="cov0" title="0">os.Exit(0)</span>
+}
+
+func (c *VersionCommand) Called() bool <span class="cov0" title="0">{
+        return c.fs.Parsed()
+}</span>
+
+func NewVersionCommand() *VersionCommand <span class="cov0" title="0">{
+        cmd := &amp;VersionCommand{
+                fs: flag.NewFlagSet("version", flag.ExitOnError),
+        }
+
+        cmd.fs.BoolVar(&amp;cmd.short, "short", false, "")
+        cmd.fs.Usage = func() </span><span class="cov0" title="0">{
+                fmt.Fprint(os.Stderr, fmt.Sprintf(versionUsage))
+        }</span>
+        <span class="cov0" title="0">return cmd</span>
+}
+
+type EditCommand struct {
+        editor   string
+        filepath string
+        fs       *flag.FlagSet
+}
+
+func NewEditCommand() *EditCommand <span class="cov0" title="0">{
+        cmd := &amp;EditCommand{
+                fs: flag.NewFlagSet("edit", flag.ContinueOnError),
+        }
+
+        cmd.fs.StringVar(&amp;cmd.editor, "editor", "vim", "")
+        cmd.fs.StringVar(&amp;cmd.filepath, "filepath", "test.md", "")
+
+        cmd.fs.Usage = func() </span><span class="cov0" title="0">{
+                fmt.Fprintf(os.Stderr, fmt.Sprintf("edit usage"))
+        }</span>
+        <span class="cov0" title="0">return cmd</span>
+}
+
+func (c *EditCommand) Init(args []string) error <span class="cov0" title="0">{
+        return c.fs.Parse(args)
+}</span>
+
+func (c *EditCommand) Called() bool <span class="cov0" title="0">{
+        return c.fs.Parsed()
+}</span>
+
+func (c *EditCommand) Run() <span class="cov0" title="0">{
+        // check for tmp template
+        // create if not exists use brief.tmpl as base
+        // edit file
+        // save
+        command := exec.Command(c.editor, c.filepath)
+        command.Stdout = os.Stdout
+        command.Stdin = os.Stdin
+        command.Stderr = os.Stderr
+        err := command.Run()
+        fmt.Print(err)
+}</span>
+
+type CreateCommand struct {
+        date     string
+        template string
+        output   string
+        fs       *flag.FlagSet
+}
+
+func NewCreateCommand() *CreateCommand <span class="cov0" title="0">{
+        cmd := &amp;CreateCommand{
+                fs: flag.NewFlagSet("create", flag.ContinueOnError),
+        }
+
+        cmd.fs.StringVar(&amp;cmd.template, "template", "brief.tmpl", "")
+        cmd.fs.StringVar(&amp;cmd.date, "date", time.Now().Format("01/02/2006"), "")
+        cmd.fs.StringVar(&amp;cmd.output, "output", "", "")
+
+        cmd.fs.Usage = func() </span><span class="cov0" title="0">{
+                fmt.Fprint(os.Stderr, fmt.Sprintf(createUsage))
+        }</span>
+        <span class="cov0" title="0">return cmd</span>
+}
+
+func (c *CreateCommand) Init(args []string) error <span class="cov0" title="0">{
+        return c.fs.Parse(args)
+}</span>
+
+func (c *CreateCommand) Called() bool <span class="cov0" title="0">{
+        return c.fs.Parsed()
+}</span>
+
+func (c *CreateCommand) Run() <span class="cov0" title="0">{
+        date, err := time.Parse("01/02/2006", c.date)
+        if err != nil </span><span class="cov0" title="0">{
+                fmt.Println(date)
+                os.Exit(1)
+        }</span>
+
+        <span class="cov0" title="0">data := getDates(date)
+
+        // TODO keep a copy of the template for editing later
+        t, err := template.ParseFiles(c.template)
+        if err != nil </span><span class="cov0" title="0">{
+                os.Exit(1)
+        }</span>
+
+        <span class="cov0" title="0">fileName := fmt.Sprintf("Week-%d.md", data.Week)
+        f, err := os.Create(c.output + fileName)
+        if err != nil </span><span class="cov0" title="0">{
+                os.Exit(1)
+        }</span>
+        <span class="cov0" title="0">err = t.Execute(f, data)</span>
+}
+
+type weekYear struct {
+        Week int
+        Year int
+        Mon  string
+        Tue  string
+        Wed  string
+        Thu  string
+        Fri  string
+}
+
+var days = map[int]int{
+        0: -1,
+        1: 0,
+        2: 1,
+        3: 2,
+        4: 3,
+        5: 4,
+        6: -2,
+}
+
+func getDates(start time.Time) *weekYear <span class="cov0" title="0">{
+        year, week := start.ISOWeek()
+
+        firstDayOfWeek := start.AddDate(0, 0, -days[int(start.Weekday())])
+        _, m, d := firstDayOfWeek.Date()
+        monday := fmt.Sprintf("%d.%d", m, d)
+
+        _, m, d = firstDayOfWeek.AddDate(0, 0, 1).Date()
+        tuesday := fmt.Sprintf("%d.%d", m, d)
+
+        _, m, d = firstDayOfWeek.AddDate(0, 0, 2).Date()
+        wednesday := fmt.Sprintf("%d.%d", m, d)
+
+        _, m, d = firstDayOfWeek.AddDate(0, 0, 3).Date()
+        thursday := fmt.Sprintf("%d.%d", m, d)
+
+        _, m, d = firstDayOfWeek.AddDate(0, 0, 4).Date()
+        friday := fmt.Sprintf("%d.%d", m, d)
+
+        return &amp;weekYear{week, year, monday, tuesday, wednesday, thursday, friday}
+}</span>
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package command
+
+import (
+        "io"
+        "os"
+)
+
+type Editor struct {
+        Args []string
+        IDE  string
+}
+
+func NewEditor() Editor <span class="cov8" title="1">{
+        return Editor{Args: []string{"vim"}}
+}</span>
+
+func saveFile(path string) (f *os.File, err error) <span class="cov8" title="1">{
+        f, err = os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
+        return
+}</span>
+
+func copyContents(f *os.File, r io.Reader) error <span class="cov8" title="1">{
+        if _, err := io.Copy(f, r); err != nil </span><span class="cov8" title="1">{
+                os.Remove(f.Name())
+                return err
+        }</span>
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (e *Editor) SaveTemplateFile(path string, r io.Reader) (f *os.File, err error) <span class="cov8" title="1">{
+        f, err = saveFile(path)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">defer f.Close()
+
+        return f, copyContents(f, r)</span>
+}
+
+// func (e *Editor) LaunchTempFile(prefix, suffix string, r io.Reader) ([]byte, string, error) {
+//         f, err := tempFile(prefix, suffix)
+//         if err != nil {
+//                 return nil, "", err
+//         }
+//         defer f.Close()
+//         path := f.Name()
+//         if _, err := io.Copy(f, r); err != nil {
+//                 os.Remove(path)
+//                 return nil, path, err
+//         }
+//         f.Close()
+//         if err := e.Launch(path); err != nil {
+//                 return nil, path, err
+//         }
+//         bytes, err := ioutil.ReadFile(path)
+//         return bytes, path, err
+// }
+
+// func (e *Editor) Launch(path string) (err error) {
+//         fmt.Println("launching")
+//         abs, err := filepath.Abs(path)
+//         if err != nil {
+//                 return err
+//         }
+//         fmt.Println("path:", abs, "IDE", e.IDE)
+//         command := exec.Command(e.IDE, abs)
+//         command.Stderr = os.Stderr
+//         command.Stdout = os.Stdout
+//         command.Stdin = os.Stdin
+//         err = command.Run()
+//         fmt.Print(err)
+//         return
+// }
+
+// func tempFile(prefix, suffix string) (f *os.File, err error) {
+//         // dir := os.TempDir()
+//         dir := ""
+//         // name := filepath.Join(dir, prefix, suffix)
+//         name := fmt.Sprintf("%s%s%s\n", dir, prefix, suffix)
+//         fmt.Printf("prefix: %s, suffix: %s, filename: %s", prefix, suffix, name)
+//         // for i := 0; i &lt; 10000; i++ {
+//         // name := filepath.Join(dir, prefix+randSeq(5)+suffix)
+//         f, err = os.OpenFile(name, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
+//         // if os.IsExist(err) {
+//         // continue
+//         // }
+//         // break
+//         // }
+//         return
+// }
+
+// var letters = []rune("abcdefghijklmnopqrstuvwxyz0123456789")
+
+// func randSeq(n int) string {
+//         b := make([]rune, n)
+//         for i := range b {
+//                 b[i] = letters[rand.Intn(len(letters))]
+//         }
+//         return string(b)
+// }
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

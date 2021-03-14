@@ -31,6 +31,7 @@ func main() {
 
 	createCmd := command.NewCreateCommand()
 	versionCmd := command.NewVersionCommand()
+	editCmd := command.NewEditCommand()
 
 	switch os.Args[1] {
 	case "create":
@@ -38,7 +39,8 @@ func main() {
 	case "version":
 		versionCmd.Init(os.Args[2:])
 	case "edit":
-		usageAndExit(fmt.Sprint("brief: 'edit' is not yet implemented.\n"))
+		// usageAndExit(fmt.Sprint("brief: 'edit' is not yet implemented.\n"))
+		editCmd.Init(os.Args[2:])
 	default:
 		usageAndExit(fmt.Sprintf("brief: '%s' is not a brief command.\n", os.Args[1]))
 	}
@@ -49,6 +51,10 @@ func main() {
 
 	if createCmd.Called() {
 		createCmd.Run()
+	}
+
+	if editCmd.Called() {
+		editCmd.Run()
 	}
 }
 

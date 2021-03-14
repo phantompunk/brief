@@ -9,5 +9,9 @@ ldflags += -X 'github.com/phantompunk/brief/command.build=$(build)'"
 all:
 	go build -o $(binary) $(ldflags)
 
+test:
+	go test ./... -cover -coverprofile c.out
+	go tool cover -html=c.out -o coverage.html
+
 clean:
-	-rm $(binary)
+	rm -rf $(binary) c.out coverage.html

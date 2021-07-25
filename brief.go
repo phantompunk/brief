@@ -21,7 +21,7 @@ Commands:
 
 func main() {
 	flag.Usage = func() {
-		fmt.Fprint(os.Stderr, fmt.Sprintf(usage))
+		fmt.Fprint(os.Stderr, fmt.Sprint(usage))
 	}
 
 	flag.Parse()
@@ -32,41 +32,47 @@ func main() {
 	createCmd := command.NewCreateCommand()
 	versionCmd := command.NewVersionCommand()
 	editCmd := command.NewEditCommand()
+	addCmd := command.NewAddCommand()
+	listCmd := command.NewListCommand()
+	deleteCmd := command.NewDeleteCommand()
 
 	switch os.Args[1] {
 	case "create":
 		createCmd.Init(os.Args[2:])
+		createCmd.Run()
 	case "version":
 		versionCmd.Init(os.Args[2:])
+		versionCmd.Run()
 	case "edit":
 		// usageAndExit(fmt.Sprint("brief: 'edit' is not yet implemented.\n"))
 		editCmd.Init(os.Args[2:])
+		editCmd.Run()
+	case "add":
+		// usageAndExit(fmt.Sprint("brief: 'edit' is not yet implemented.\n"))
+		addCmd.Init(os.Args[2:])
+		addCmd.Run()
+	case "list":
+		// usageAndExit(fmt.Sprint("brief: 'edit' is not yet implemented.\n"))
+		listCmd.Init(os.Args[2:])
+		listCmd.Run()
+	case "delete":
+		// usageAndExit(fmt.Sprint("brief: 'edit' is not yet implemented.\n"))
+		deleteCmd.Init(os.Args[2:])
+		deleteCmd.Run()
 	default:
 		usageAndExit(fmt.Sprintf("brief: '%s' is not a brief command.\n", os.Args[1]))
 	}
-
-	if versionCmd.Called() {
-		versionCmd.Run()
-	}
-
-	if createCmd.Called() {
-		createCmd.Run()
-	}
-
-	if editCmd.Called() {
-		editCmd.Run()
-	}
 }
 
-func errAndExit(msg string) {
-	fmt.Fprintf(os.Stderr, msg)
-	fmt.Fprintf(os.Stderr, "\n")
-	os.Exit(1)
-}
+// func errAndExit(msg string) {
+// 	fmt.Fprintf(os.Stderr, msg)
+// 	fmt.Fprintf(os.Stderr, "\n")
+// 	os.Exit(1)
+// }
 
 func usageAndExit(msg string) {
 	if msg != "" {
-		fmt.Fprintf(os.Stderr, msg)
+		fmt.Fprint(os.Stderr, msg)
 		fmt.Fprintf(os.Stderr, "\n")
 	}
 

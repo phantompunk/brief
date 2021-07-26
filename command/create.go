@@ -42,7 +42,7 @@ func NewCreateCommand() *CreateCommand {
 	cmd.fs.StringVar(&cmd.output, "output", "", "")
 
 	cmd.fs.Usage = func() {
-		fmt.Fprint(os.Stderr, fmt.Sprintf(createUsage))
+		fmt.Fprint(os.Stderr, createUsage)
 	}
 	return cmd
 }
@@ -76,4 +76,7 @@ func (c *CreateCommand) Run() {
 		os.Exit(1)
 	}
 	err = t.Execute(f, data)
+	if err != nil {
+		os.Exit(1)
+	}
 }

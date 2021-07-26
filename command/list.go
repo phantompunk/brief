@@ -21,7 +21,7 @@ func NewListCommand() *ListCommand {
 	cmd.fs.StringVar(&cmd.filepath, "filepath", "test.md", "")
 
 	cmd.fs.Usage = func() {
-		fmt.Fprintf(os.Stderr, fmt.Sprintf("edit usage"))
+		fmt.Fprint(os.Stderr, "edit usage")
 	}
 	return cmd
 }

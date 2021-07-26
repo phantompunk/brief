@@ -7,9 +7,7 @@ import (
 )
 
 type DeleteCommand struct {
-	editor   string
-	filepath string
-	fs       *flag.FlagSet
+	fs *flag.FlagSet
 }
 
 func NewDeleteCommand() *ListCommand {
@@ -21,7 +19,7 @@ func NewDeleteCommand() *ListCommand {
 	cmd.fs.StringVar(&cmd.filepath, "filepath", "test.md", "")
 
 	cmd.fs.Usage = func() {
-		fmt.Fprintf(os.Stderr, fmt.Sprintf("edit usage"))
+		fmt.Fprint(os.Stderr, "edit usage")
 	}
 	return cmd
 }

@@ -22,7 +22,7 @@ func NewEditCommand() *EditCommand {
 	cmd.fs.StringVar(&cmd.filepath, "filepath", "test.md", "")
 
 	cmd.fs.Usage = func() {
-		fmt.Fprintf(os.Stderr, fmt.Sprintf("edit usage"))
+		fmt.Fprintf(os.Stderr, "edit usage")
 	}
 	return cmd
 }

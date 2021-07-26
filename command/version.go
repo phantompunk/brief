@@ -53,7 +53,7 @@ func NewVersionCommand() *VersionCommand {
 
 	cmd.fs.BoolVar(&cmd.short, "short", false, "")
 	cmd.fs.Usage = func() {
-		fmt.Fprint(os.Stderr, fmt.Sprintf(versionUsage))
+		fmt.Fprint(os.Stderr, versionUsage)
 	}
 	return cmd
 }

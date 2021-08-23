@@ -35,14 +35,18 @@ func main() {
 	case "add":
 		briefCmd = command.NewAddCommand()
 	case "edit":
-		// briefCmd := command.NewEditCommand()
+		briefCmd = command.NewEditCommand()
 	case "list":
-		// briefCmd := command.NewListCommand()
+		// usageAndExit(fmt.Sprintf("brief: '%s' not implemented.\n", os.Args[1]))
+		briefCmd = command.NewListCommand()
 	case "delete":
-		// briefCmd := command.NewDeleteCommand()
+		// usageAndExit(fmt.Sprintf("brief: '%s' not implemented.\n", os.Args[1]))
+		briefCmd = command.NewDeleteCommand()
 	case "create":
+		usageAndExit(fmt.Sprintf("brief: '%s' not implemented.\n", os.Args[1]))
 		// briefCmd := command.NewCreateCommand()
 	case "version":
+		usageAndExit(fmt.Sprintf("brief: '%s' not implemented.\n", os.Args[1]))
 		// briefCmd := command.NewVersionCommand()
 	default:
 		usageAndExit(fmt.Sprintf("brief: '%s' is not a brief command.\n", os.Args[1]))

@@ -13,22 +13,23 @@ func NewAddCommand() *BaseCommand {
 	cmd := &BaseCommand{
 		flags: flag.NewFlagSet("add", flag.PanicOnError),
 		Execute: func(cmd *BaseCommand, args []string) {
-			fmt.Printf("Adding %v\n", dest)
-			fmt.Println("Running Add()")
 			f, err := ioutil.ReadFile(dest)
 			if err != nil {
 				fmt.Printf("failed to read from %s\n", dest)
 				os.Exit(1)
 			}
 
-			out, err := os.Create("/Users/rodrigomoran/Workspace/brief/template/test1")
+			file_name := fmt.Sprint("copy-", dest)
+			if len(args) != 0 {
+				file_name = args[0]
+			}
+			out, err := os.Create("/Users/rodrigomoran/Workspace/brief/template/" + file_name)
 			if err != nil {
 				os.Exit(1)
 			}
 			defer out.Close()
 
 			out.WriteString(string(f))
-			fmt.Print("file", string(f))
 		},
 	}
 

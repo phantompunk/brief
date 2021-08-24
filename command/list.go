@@ -6,9 +6,15 @@ import (
 	"os"
 )
 
+var listUsage = `List all currently avaible templates.
+
+Usage: brief list
+Options:
+`
+
 func NewListCommand() *BaseCommand {
 	cmd := &BaseCommand{
-		flags: flag.NewFlagSet("list", flag.PanicOnError),
+		flags: flag.NewFlagSet("list", flag.ExitOnError),
 		Execute: func(cmd *BaseCommand, args []string) {
 			file, err := os.Open("/Users/rodrigomoran/Workspace/brief/template")
 			if err != nil {
@@ -18,15 +24,15 @@ func NewListCommand() *BaseCommand {
 
 			filelist, _ := file.Readdir(0)
 
-			fmt.Printf("Name\t\tSize\t\tModified\n")
+			fmt.Printf("NAME\t\tSIZE\t\tMODIFIED")
 			for _, files := range filelist {
-				fmt.Printf("\n%-15s %-7v %v", files.Name(), files.Size(), files.ModTime())
+				fmt.Printf("\n%-15s %-15v %v", files.Name(), files.Size(), files.ModTime().Format("2006-01-02 15:04:05"))
 			}
 		},
 	}
 
 	cmd.flags.Usage = func() {
-		fmt.Fprintln(os.Stderr, "add usage")
+		fmt.Fprintln(os.Stderr, listUsage)
 	}
 
 	return cmd

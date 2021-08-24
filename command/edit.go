@@ -8,16 +8,20 @@ import (
 	"path/filepath"
 )
 
-// type EditCommand struct {
-// 	editor   string
-// 	filepath string
-// 	fs       *flag.FlagSet
-// }
+var editUsage = `Edits an existing template.
+
+Usage: brief edit TEMPLATE
+
+Options:
+`
 
 func NewEditCommand() *BaseCommand {
 	cmd := &BaseCommand{
-		flags: flag.NewFlagSet("edit", flag.ContinueOnError),
+		flags: flag.NewFlagSet("edit", flag.ExitOnError),
 		Execute: func(cmd *BaseCommand, args []string) {
+			if len(args) == 0 {
+				os.Exit(1)
+			}
 			file_name := args[0]
 			file_path := filepath.Join("/Users/rodrigomoran/Workspace/brief/template", file_name)
 
@@ -27,14 +31,16 @@ func NewEditCommand() *BaseCommand {
 				command.Stdin = os.Stdin
 				command.Stderr = os.Stderr
 				err := command.Run()
-				fmt.Print(err)
+				if err != nil {
+					os.Exit(1)
+				}
 			}
-			fmt.Printf("Running Edit() on %s", file_name)
+			fmt.Printf("brief: Template '%s' was edited", file_name)
 		},
 	}
 
 	cmd.flags.Usage = func() {
-		fmt.Fprint(os.Stderr, "add usage")
+		fmt.Fprint(os.Stderr, editUsage)
 	}
 
 	return cmd

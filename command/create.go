@@ -33,33 +33,40 @@ type CreateCommand struct {
 	fs       *flag.FlagSet
 }
 
+var dest string
+
 func NewCreateCommand() *BaseCommand {
 	cmd := &BaseCommand{
 		flags: flag.NewFlagSet("create", flag.PanicOnError),
 		Execute: func(cmd *BaseCommand, args []string) {
 			file_name := args[0]
 
-			path := filepath.Join("/Users/rodrigomoran/Workspace/brief/template", file_name)
+			path := filepath.Join("/Users/rodrigomoran/Workspace/brief/template/", file_name)
 			if _, err := os.Stat(path); err == nil {
+				fmt.Print("file exists")
 				date := time.Now()
 				data := getDates(date)
 
 				t, err := template.ParseFiles(path)
 				if err != nil {
+					fmt.Print("Failed to parse")
 					os.Exit(1)
 				}
 
 				fileName := fmt.Sprintf("Week-%d.md", data.Week)
 				f, err := os.Create(fileName)
 				if err != nil {
+					fmt.Print("Failed to create")
 					os.Exit(1)
 				}
 
 				err = t.Execute(f, data)
 				if err != nil {
+					fmt.Print("Failed to execute")
 					os.Exit(1)
 				}
 			}
+			fmt.Print("What happened?")
 
 			// f, err := ioutil.ReadFile(dest)
 			// if err != nil {
@@ -89,33 +96,3 @@ func NewCreateCommand() *BaseCommand {
 
 	return cmd
 }
-
-// 	cmd.fs.StringVar(&cmd.template, "template", "brief.tmpl", "")
-// 	cmd.fs.StringVar(&cmd.date, "date", time.Now().Format("01/02/2006"), "")
-// 	cmd.fs.StringVar(&cmd.output, "output", "", "")
-
-// func (c *CreateCommand) Run() {
-// 	date, err := time.Parse("01/02/2006", c.date)
-// 	if err != nil {
-// 		fmt.Println(date)
-// 		os.Exit(1)
-// 	}
-
-// 	data := getDates(date)
-
-// 	// TODO keep a copy of the template for editing later
-// 	t, err := template.ParseFiles(c.template)
-// 	if err != nil {
-// 		os.Exit(1)
-// 	}
-
-// 	fileName := fmt.Sprintf("Week-%d.md", data.Week)
-// 	f, err := os.Create(c.output + fileName)
-// 	if err != nil {
-// 		os.Exit(1)
-// 	}
-// 	err = t.Execute(f, data)
-// 	if err != nil {
-// 		os.Exit(1)
-// 	}
-// }

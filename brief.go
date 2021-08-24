@@ -8,14 +8,20 @@ import (
 	"github.com/phantompunk/brief/command"
 )
 
-var usage = `Usage: brief command [options...]
+var usage = `Usage: brief [options] command
+
+A simple tool to generate and manage custom templates
+
 Options:
   --template	Path to custom template file for weekly report.
   --date	Date used to generate weekly report. Default is current date.
   --output 	Output directory for newly created report. Default is current directory.
 Commands:
-  create	Generate a weekly report
-  edit		Edit weekly report template
+  add		Add a template
+  edit		Edit a template
+  list		List all templates
+  delete	Delete a template
+  create	Create an instance of a template
   version	Print version info
 `
 
@@ -41,11 +47,9 @@ func main() {
 	case "delete":
 		briefCmd = command.NewDeleteCommand()
 	case "create":
-		// usageAndExit(fmt.Sprintf("brief: '%s' not implemented.\n", os.Args[1]))
 		briefCmd = command.NewCreateCommand()
 	case "version":
-		usageAndExit(fmt.Sprintf("brief: '%s' not implemented.\n", os.Args[1]))
-		// briefCmd := command.NewVersionCommand()
+		briefCmd = command.NewVersionCommand()
 	default:
 		usageAndExit(fmt.Sprintf("brief: '%s' is not a brief command.\n", os.Args[1]))
 	}
@@ -67,6 +71,5 @@ func usageAndExit(msg string) {
 	}
 
 	flag.Usage()
-	fmt.Fprintf(os.Stderr, "\n")
-	os.Exit(1)
+	os.Exit(0)
 }

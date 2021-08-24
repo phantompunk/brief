@@ -7,35 +7,32 @@ import (
 	"path/filepath"
 )
 
+var deleteUsage = `Removes a specific templates from the saved directory.
+
+Usage: brief delete TEMPLATE
+
+Options:
+`
+
 func NewDeleteCommand() *BaseCommand {
 	cmd := &BaseCommand{
-		flags: flag.NewFlagSet("delete", flag.PanicOnError),
+		flags: flag.NewFlagSet("delete", flag.ExitOnError),
 		Execute: func(cmd *BaseCommand, args []string) {
+			if len(args) == 0 {
+				os.Exit(1)
+			}
 			file_name := args[0]
-			fmt.Printf("Deleting file %v", file_name)
 
 			path := filepath.Join("/Users/rodrigomoran/Workspace/brief/template", file_name)
 			if _, err := os.Stat(path); err == nil {
 				os.Remove(path)
-				fmt.Printf("brief: removed %s", file_name)
+				fmt.Printf("brief: Template '%s' was deleted", file_name)
 			}
-			// file, err := os.Open("/Users/rodrigomoran/Workspace/brief/template")
-			// if err != nil {
-			// 	os.Exit(1)
-			// }
-			// defer file.Close()
-
-			// filelist, _ := file.Readdir(0)
-
-			// fmt.Printf("Name\t\tSize\t\tModified\n")
-			// for _, files := range filelist {
-			// 	fmt.Printf("\n%-15s %-7v %v", files.Name(), files.Size(), files.ModTime())
-			// }
 		},
 	}
 
 	cmd.flags.Usage = func() {
-		fmt.Fprintln(os.Stderr, "add usage")
+		fmt.Fprintln(os.Stderr, deleteUsage)
 	}
 
 	return cmd
